@@ -1,8 +1,11 @@
-/** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+  images: {
+    unoptimized: true,
   },
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/SimplrTask00' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '/SimplrTask00' : '',
 };
 
-export default config;
+export default nextConfig;
