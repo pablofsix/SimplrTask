@@ -1,6 +1,8 @@
 
 import type { Task, PopoutPosition, GlobalActivity, AppData, Project, AppSettings } from '@/lib/types';
 
+export type { PopoutPosition };
+
 const APP_DATA_KEY = 'app-data';
 const POPOUT_POSITION_KEY = 'popout-position';
 

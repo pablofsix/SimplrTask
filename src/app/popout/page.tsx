@@ -70,8 +70,8 @@ export default function PopoutPage() {
     updateAppData({ ...appData, projects: newProjects });
   };
 
-  const updateTasks = (newTasks: Task[]) => {
-    if (!activeProject || !appData) return;
+  const updateTasks = (newTasks: Task[]): Project[] | undefined => {
+    if (!activeProject || !appData) return undefined;
     const newProjects = appData.projects.map(p => 
       p.id === appData.activeProjectId ? { ...p, tasks: newTasks } : p
     );
@@ -89,7 +89,7 @@ export default function PopoutPage() {
       status: 'Pendiente',
     };
     const updatedProjectsWithTask = updateTasks([newTask, ...activeProject.tasks]);
-    addActivity(updatedProjectsWithTask, newTask.id, 'created', content);
+    if (updatedProjectsWithTask) addActivity(updatedProjectsWithTask, newTask.id, 'created', content);
   };
 
   const handleUpdateTask = (taskId: string, newContent: string) => {
@@ -112,7 +112,7 @@ export default function PopoutPage() {
       return t;
     });
     const updatedProjects = updateTasks(newTasks);
-    if(originalContent && appData) {
+    if(originalContent && appData && updatedProjects) {
       addActivity(updatedProjects, taskId, 'content', newContent, originalContent, newContent);
     }
     toast({ title: 'Task Updated' });
@@ -140,7 +140,7 @@ export default function PopoutPage() {
       return t;
     });
     const updatedProjects = updateTasks(newTasks);
-    if (originalStatus && appData) {
+    if (originalStatus && appData && updatedProjects) {
       addActivity(updatedProjects, taskId, 'status', taskContent, originalStatus, newStatus);
     }
     toast({ title: 'Task Status Updated' });
@@ -153,8 +153,8 @@ export default function PopoutPage() {
     
     const newTasks = activeProject.tasks.filter(t => t.id !== taskId);
     const updatedProjects = updateTasks(newTasks);
-    if (appData) {
-        addActivity(updatedProjects, taskId, 'deleted', taskToDelete.content);
+    if (appData && updatedProjects) {
+      addActivity(updatedProjects, taskId, 'deleted', taskToDelete.content);
     }
     toast({ title: 'Task Deleted' });
   };
