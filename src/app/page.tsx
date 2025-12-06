@@ -290,10 +290,16 @@ export default function Home() {
             break;
     }
 
-    // Use a relative path (no leading slash) so this opens under the current
-    // base path (works on GitHub Pages where the app is served at
-    // /<repo>/). Opening `/popout` would point to the site root and cause a 404.
-    window.open('popout', 'task-popout', `width=${width},height=${height},top=${top},left=${left}`);
+    // Build an explicit popout URL based on the repository root segment so
+    // the popout opens correctly whether the current URL has a trailing
+    // slash or not. This avoids cases where a relative path resolves to
+    // the site root (causing a 404 like https://username.github.io/popout).
+    const origin = window.location.origin;
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    const repoSegment = segments.length > 0 ? `/${segments[0]}` : '';
+    const popoutUrl = `${origin}${repoSegment}/popout`;
+
+    window.open(popoutUrl, 'task-popout', `width=${width},height=${height},top=${top},left=${left}`);
   }
   
 const handleCopyTasks = () => {
