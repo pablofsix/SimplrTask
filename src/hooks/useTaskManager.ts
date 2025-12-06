@@ -54,8 +54,8 @@ export function useTaskManager(
   );
 
   const createTask = useCallback(
-    (content: string) => {
-      if (!activeProject || !appData) return;
+    (content: string): string | undefined => {
+      if (!activeProject || !appData) return undefined;
       const newTask: Task = {
         id: `task-${Date.now()}`,
         content,
@@ -66,17 +66,20 @@ export function useTaskManager(
       const updatedTasks = [newTask, ...activeProject.tasks];
       const updatedProjects = updateTasks(updatedTasks);
       if (updatedProjects) addActivity(updatedProjects, newTask.id, 'created', content);
+      return newTask.id;
     },
     [activeProject, appData, updateTasks, addActivity]
   );
 
   const updateTask = useCallback(
-    (taskId: string, newContent: string) => {
-      if (!activeProject) return;
+    (taskId: string, newContent: string): boolean => {
+      if (!activeProject) return false;
       let originalContent = '';
+      let changed = false;
       const newTasks = activeProject.tasks.map(t => {
         if (t.id === taskId) {
           if (t.content === newContent) return t;
+          changed = true;
           originalContent = t.content;
           const newModification: Modification = {
             id: `mod-${Date.now()}`,
@@ -90,22 +93,26 @@ export function useTaskManager(
         }
         return t;
       });
+      if (!changed) return false;
       const updatedProjects = updateTasks(newTasks);
       if (originalContent && appData && updatedProjects) {
         addActivity(updatedProjects, taskId, 'content', newContent, originalContent, newContent);
       }
+      return true;
     },
     [activeProject, appData, updateTasks, addActivity]
   );
 
   const updateTaskStatus = useCallback(
-    (taskId: string, newStatus: TaskStatus) => {
-      if (!activeProject) return;
+    (taskId: string, newStatus: TaskStatus): boolean => {
+      if (!activeProject) return false;
       let taskContent = '';
       let originalStatus: TaskStatus | undefined = undefined;
+      let changed = false;
 
       const newTasks = activeProject.tasks.map(t => {
         if (t.id === taskId && t.status !== newStatus) {
+          changed = true;
           taskContent = t.content;
           originalStatus = t.status;
           const newModification: Modification = {
@@ -120,26 +127,29 @@ export function useTaskManager(
         }
         return t;
       });
+      if (!changed) return false;
       const updatedProjects = updateTasks(newTasks);
 
       if (originalStatus && appData && updatedProjects) {
         addActivity(updatedProjects, taskId, 'status', taskContent, originalStatus, newStatus);
       }
+      return true;
     },
     [activeProject, appData, updateTasks, addActivity]
   );
 
   const deleteTask = useCallback(
-    (taskId: string) => {
-      if (!activeProject) return;
+    (taskId: string): boolean => {
+      if (!activeProject) return false;
       const taskToDelete = activeProject.tasks.find(t => t.id === taskId);
-      if (!taskToDelete) return;
+      if (!taskToDelete) return false;
 
       const newTasks = activeProject.tasks.filter(t => t.id !== taskId);
       const updatedProjects = updateTasks(newTasks);
       if (appData && updatedProjects) {
         addActivity(updatedProjects, taskId, 'deleted', taskToDelete.content);
       }
+      return true;
     },
     [activeProject, appData, updateTasks, addActivity]
   );

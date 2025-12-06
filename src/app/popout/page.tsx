@@ -60,18 +60,24 @@ export default function PopoutPage() {
   };
 
   const handleUpdateTask = (taskId: string, newContent: string) => {
-    taskManager.updateTask(taskId, newContent);
-    toast({ title: 'Task Updated' });
+    const ok = taskManager.updateTask(taskId, newContent);
+    if (!ok) {
+      toast({ title: 'No se pudo actualizar la tarea', description: 'Revisa los cambios e intenta de nuevo.' });
+    }
   };
 
   const handleUpdateTaskStatus = (taskId: string, newStatus: TaskStatus) => {
-    taskManager.updateTaskStatus(taskId, newStatus);
-    toast({ title: 'Task Status Updated' });
+    const ok = taskManager.updateTaskStatus(taskId, newStatus);
+    if (!ok) {
+      toast({ title: 'No se pudo actualizar el estado', description: 'Revisa e intenta de nuevo.' });
+    }
   };
   
   const handleDeleteTask = (taskId: string) => {
-    taskManager.deleteTask(taskId);
-    toast({ title: 'Task Deleted' });
+    const ok = taskManager.deleteTask(taskId);
+    if (!ok) {
+      toast({ title: 'No se pudo eliminar la tarea', description: 'Revisa e intenta de nuevo.' });
+    }
   };
 
   const viewHistory = (task: Task) => {
