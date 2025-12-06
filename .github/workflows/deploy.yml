@@ -25,6 +25,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create directory-based routing for GitHub Pages
+        run: |
+          mkdir -p out/popout
+          cp out/popout.html out/popout/index.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
