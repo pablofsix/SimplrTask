@@ -7,6 +7,7 @@ import { PopoutMainContent } from '@/components/popout-main-content';
 import type { Task, Modification, TaskStatus, PopoutPosition, AppData, Project, GlobalActivity } from '@/lib/types';
 import { getAppData, saveAppData, savePopoutPosition, getPopoutPosition } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
+import { useTaskManager } from '@/hooks/useTaskManager';
 import { Toaster } from '@/components/ui/toaster';
 import { HistoryDialog } from '@/components/history-dialog';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,9 @@ export default function PopoutPage() {
   const [historyTask, setHistoryTask] = useState<Task | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [currentPosition, setCurrentPosition] = useState<PopoutPosition>('center');
+
+  const activeProject = appData?.projects.find(p => p.id === appData.activeProjectId);
+  const taskManager = useTaskManager(appData, activeProject || null, setAppData);
 
   useEffect(() => {
     setAppData(getAppData());
@@ -43,119 +47,29 @@ export default function PopoutPage() {
     };
   }, []);
   
-  const activeProject = appData?.projects.find(p => p.id === appData.activeProjectId);
-
   const updateAppData = (newAppData: AppData) => {
     setAppData(newAppData);
     saveAppData(newAppData);
   };
   
-  const addActivity = (updatedProjects: Project[], taskId: string, type: GlobalActivity['type'], taskContent: string, from?: string, to?: string) => {
-    if (!activeProject || !appData) return;
-    const newActivityEntry: GlobalActivity = {
-      id: `act-${Date.now()}`,
-      taskId,
-      timestamp: new Date(),
-      type,
-      taskContent,
-      from,
-      to,
-    };
-    
-    const newProjects = updatedProjects.map(p => 
-      p.id === appData.activeProjectId 
-        ? { ...p, activity: [newActivityEntry, ...p.activity] } 
-        : p
-    );
-    updateAppData({ ...appData, projects: newProjects });
-  };
-
-  const updateTasks = (newTasks: Task[]): Project[] | undefined => {
-    if (!activeProject || !appData) return undefined;
-    const newProjects = appData.projects.map(p => 
-      p.id === appData.activeProjectId ? { ...p, tasks: newTasks } : p
-    );
-    updateAppData({ ...appData, projects: newProjects });
-    return newProjects;
-  }
-
+  
   const handleAddTask = (content: string) => {
-    if (content.trim() === '' || !activeProject) return;
-    const newTask: Task = {
-      id: `task-${Date.now()}`,
-      content: content,
-      createdAt: new Date(),
-      modifications: [],
-      status: 'Pendiente',
-    };
-    const updatedProjectsWithTask = updateTasks([newTask, ...activeProject.tasks]);
-    if (updatedProjectsWithTask) addActivity(updatedProjectsWithTask, newTask.id, 'created', content);
+    if (content.trim() === '') return;
+    taskManager.createTask(content.trim());
   };
 
   const handleUpdateTask = (taskId: string, newContent: string) => {
-    if (!activeProject) return;
-    let originalContent = '';
-    const newTasks = activeProject.tasks.map(t => {
-      if (t.id === taskId) {
-        if (t.content === newContent) return t;
-        originalContent = t.content;
-        const newModification: Modification = {
-          id: `mod-${Date.now()}`,
-          taskId: taskId,
-          timestamp: new Date(),
-          type: 'content',
-          from: t.content,
-          to: newContent,
-        };
-        return { ...t, content: newContent, modifications: [newModification, ...t.modifications] };
-      }
-      return t;
-    });
-    const updatedProjects = updateTasks(newTasks);
-    if(originalContent && appData && updatedProjects) {
-      addActivity(updatedProjects, taskId, 'content', newContent, originalContent, newContent);
-    }
+    taskManager.updateTask(taskId, newContent);
     toast({ title: 'Task Updated' });
   };
 
   const handleUpdateTaskStatus = (taskId: string, newStatus: TaskStatus) => {
-    if (!activeProject) return;
-    let taskContent = '';
-    let originalStatus: TaskStatus | undefined = undefined;
-
-    const newTasks = activeProject.tasks.map(t => {
-      if (t.id === taskId && t.status !== newStatus) {
-        taskContent = t.content;
-        originalStatus = t.status;
-        const newModification: Modification = {
-          id: `mod-${Date.now()}`,
-          taskId: taskId,
-          timestamp: new Date(),
-          type: 'status',
-          from: t.status,
-          to: newStatus,
-        };
-        return { ...t, status: newStatus, modifications: [newModification, ...t.modifications] };
-      }
-      return t;
-    });
-    const updatedProjects = updateTasks(newTasks);
-    if (originalStatus && appData && updatedProjects) {
-      addActivity(updatedProjects, taskId, 'status', taskContent, originalStatus, newStatus);
-    }
+    taskManager.updateTaskStatus(taskId, newStatus);
     toast({ title: 'Task Status Updated' });
   };
   
   const handleDeleteTask = (taskId: string) => {
-    if (!activeProject) return;
-    const taskToDelete = activeProject.tasks.find(t => t.id === taskId);
-    if (!taskToDelete) return;
-    
-    const newTasks = activeProject.tasks.filter(t => t.id !== taskId);
-    const updatedProjects = updateTasks(newTasks);
-    if (appData && updatedProjects) {
-      addActivity(updatedProjects, taskId, 'deleted', taskToDelete.content);
-    }
+    taskManager.deleteTask(taskId);
     toast({ title: 'Task Deleted' });
   };
 
