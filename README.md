@@ -2,6 +2,22 @@
 
 A modern task management application built with Next.js 15, featuring project organization, activity tracking, and AI-powered task summarization using Google Gemini.
 
+## About This Project
+
+**ProjectFlow** surgió de una necesidad real: durante reuniones de seguimiento de proyectos técnicos, necesitaba una herramienta simple para gestionar tareas y estados sin complejidades innecesarias.
+
+### Mi Contribución
+
+Como **Ingeniero** con experiencia en gestión e ingeniería de proyectos:
+
+- **Diseño Funcional**: Definí qué era necesario y cómo debía funcionar, basándome en experiencia profesional.
+- **Prototipado**: Usé Firebase Studio para validar conceptos y establecer estructuras iniciales.
+- **Desarrollo y Refinamiento**: Evolucióné la aplicación con GitHub Copilot y VS Code, mejorando arquitectura, lógica y mantenibilidad.
+- **Integración Técnica**: Orquesté tecnologías modernas (Next.js, Radix UI, Tailwind) para una solución robusta.
+- **Despliegue**: Implementé pipeline automático en GitHub Pages + GitHub Actions.
+
+El proyecto refleja un ciclo completo: de identificar un problema real a una solución en producción.
+
 ## Features
 
 - **Project Management**: Create and organize multiple projects
@@ -45,6 +61,8 @@ npm run deploy  # Deploy to GitHub Pages
 - `src/ai/` - Genkit AI configuration
 
 For more details, see `.github/copilot-instructions.md`
+
+**For detailed information about the project's design, architecture, and creator's role, see [AUTHOR.md](./AUTHOR.md)**
 
 ## Troubleshooting
 
