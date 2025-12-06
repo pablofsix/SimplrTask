@@ -290,7 +290,10 @@ export default function Home() {
             break;
     }
 
-    window.open('/popout', 'task-popout', `width=${width},height=${height},top=${top},left=${left}`);
+    // Use a relative path (no leading slash) so this opens under the current
+    // base path (works on GitHub Pages where the app is served at
+    // /<repo>/). Opening `/popout` would point to the site root and cause a 404.
+    window.open('popout', 'task-popout', `width=${width},height=${height},top=${top},left=${left}`);
   }
   
 const handleCopyTasks = () => {
