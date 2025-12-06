@@ -8,6 +8,7 @@ import type { Task, Modification, TaskStatus, PopoutPosition, AppData, Project, 
 import { getAppData, saveAppData, savePopoutPosition, getPopoutPosition } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { useTaskManager } from '@/hooks/useTaskManager';
+import { getMainUrl } from '@/lib/routing';
 import { Toaster } from '@/components/ui/toaster';
 import { HistoryDialog } from '@/components/history-dialog';
 import { Button } from '@/components/ui/button';

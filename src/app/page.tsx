@@ -6,6 +6,8 @@ import type { Task, Modification, TaskStatus, GlobalActivity, AppData, Project, 
 import { useToast } from '@/hooks/use-toast';
 import { useProjectManager } from '@/hooks/useProjectManager';
 import { useTaskManager } from '@/hooks/useTaskManager';
+import { getPopoutPosition, type PopoutPosition, getAppData, saveAppData } from '@/lib/storage';
+import { getPopoutUrl } from '@/lib/routing';
 
 import { MainContent } from '@/components/main-content';
 import { HistoryDialog } from '@/components/history-dialog';
@@ -15,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Check, X, ArrowUpRightFromSquare, Activity, ClipboardCopy, ChevronsUpDown, PlusCircle, Loader2, ClipboardCheck, Trash2, Settings } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getPopoutPosition, type PopoutPosition, getAppData, saveAppData } from '@/lib/storage';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -174,9 +175,9 @@ export default function Home() {
   };
 
   const openPopout = () => {
+    const position = getPopoutPosition();
     const width = 600;
     const height = 400;
-    const position = getPopoutPosition();
     
     let top = (window.screen.height - height) / 2;
     let left = (window.screen.width - width) / 2;
@@ -200,16 +201,8 @@ export default function Home() {
             break;
     }
 
-    // Build an explicit popout URL based on the repository root segment so
-    // the popout opens correctly whether the current URL has a trailing
-    // slash or not. This avoids cases where a relative path resolves to
-    // the site root (causing a 404 like https://username.github.io/popout).
-    const origin = window.location.origin;
-    const segments = window.location.pathname.split('/').filter(Boolean);
-    const repoSegment = segments.length > 0 ? `/${segments[0]}` : '';
-    const popoutUrl = `${origin}${repoSegment}/popout`;
-
-    window.open(popoutUrl, 'task-popout', `width=${width},height=${height},top=${top},left=${left}`);
+    // Use centralized routing helper for consistent URL handling
+    window.open(getPopoutUrl(), 'task-popout', `width=${width},height=${height},top=${top},left=${left}`);
   }
   
 const handleCopyTasks = () => {
